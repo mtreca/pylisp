@@ -20,6 +20,10 @@ class LispList(LispObject):
     def __repr__(self) -> str:
         return "(" + " ".join([atom.__repr__() for atom in self.val]) + ")"
 
+    def __iter__(self):
+        for atom in self.val:
+            yield atom
+
 
 def atom_to_object(atom: str) -> LispObject:
     match atom:
