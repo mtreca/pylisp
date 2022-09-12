@@ -2,7 +2,7 @@ import re
 from collections import deque
 from typing import Deque, List
 
-from lisp_types import LispObject, LispList, atom_to_object, list_to_object
+from lisp_types import atom_to_object, LispItem, LispAtom, LispList
 
 
 class Reader:
@@ -22,20 +22,20 @@ def tokenize(string: str) -> List[str]:
     return tokenizer.findall(string)
 
 
-def read_str(string: str) -> LispObject:
+def read_str(string: str) -> LispItem:
     tokens = tokenize(string)
     reader = Reader(tokens)
     return read_form(reader)
 
 
-def read_form(reader: Reader) -> LispObject:
-    match reader.peek():
-        case ")":
-            raise Exception("Unexpected ')'")
-        case "(":
-            return read_list(reader)
-        case _:
-            return read_atom(reader)
+def read_form(reader: Reader) -> LispItem:
+
+    if (next := reader.peek()) == ")":
+        raise Exception("Unexpected ')'")
+    elif next == "(":
+        return read_list(reader)
+    else:
+        return read_atom(reader)
 
 
 def read_list(reader: Reader) -> LispList:
@@ -49,8 +49,8 @@ def read_list(reader: Reader) -> LispList:
 
     _ = reader.next()
 
-    return list_to_object(atoms)
+    return atoms
 
 
-def read_atom(reader: Reader) -> LispObject:
+def read_atom(reader: Reader) -> LispAtom:
     return atom_to_object(reader.next())

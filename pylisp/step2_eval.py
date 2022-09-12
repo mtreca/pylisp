@@ -1,9 +1,10 @@
 import functools
-from typing import Dict
+from typing import Dict, List
 
-from lisp_printer import pr_str
+from lisp_types import pr_str
 from lisp_reader import read_str
-from lisp_types import LispList, LispObject, LispSymbol
+from pylisp.lisp_types import LispItem
+
 
 REPL_ENV = {
     "+": lambda a, b: a + b,
@@ -13,31 +14,31 @@ REPL_ENV = {
 }
 
 
-def eval_ast(ast: LispObject, env: Dict) -> LispObject:
-    if isinstance(ast, LispList):
+def eval_ast(ast: LispItem, env: Dict) -> LispItem:
+    if isinstance(ast, List):
         return [EVAL(x, env) for x in ast]
-    elif isinstance(ast, LispSymbol):
-        return env[ast.val]
+    elif isinstance(ast, str):
+        return env[ast]
     else:
         return ast
 
 
-def READ(str: str) -> LispObject:
+def READ(str: str) -> LispItem:
     return read_str(str)
 
 
-def EVAL(ast: LispObject, env: Dict) -> LispObject:
-    if isinstance(ast, LispList):
-        if ast.val is []:
+def EVAL(ast: LispItem, env: Dict) -> LispItem:
+    if isinstance(ast, List) and ast is []:
+        if ast is []:
             return ast
         else:
             fn, *args = eval_ast(ast, env)
-            return functools.reduce(fn, [arg.val for arg in args])
+            return functools.reduce(fn, args)
     else:
         return eval_ast(ast, env)
 
 
-def PRINT(exp: LispObject) -> str:
+def PRINT(exp: LispItem) -> str:
     str = pr_str(exp)
     print(str)
     return str
